@@ -143,11 +143,11 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase{
     // Sale Controls
 
     function setPresalePrice(uint256 _amount) external onlyOwner {
-        presalePrice = _amount * 10 ** 18; 
+        presalePrice = _amount; 
     }
 
     function setPublicPrice(uint256 _amount) external onlyOwner {
-        publicPrice = _amount * 10 ** 18; 
+        publicPrice = _amount; 
     }
     function StartPresale(bytes32 _merkleRoot) external onlyOwner{
         merkleRoot = _merkleRoot;
