@@ -1,69 +1,87 @@
 // SPDX-License-Identifier: MIT
 // Written by LEDK For the Cosmic Monkey CLub
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.7;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
 
-contract CosmicMonkeyClub is ERC721Enumerable, Ownable {
+contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase{
     using Strings for uint256;
     bytes32 private root;
     string public baseURI;
-    string public baseExtension = ".json";
     uint256 public maxSupply = 10000;
     uint256 public maxPresaleSupply = 10000;
-    //Max Mint per wallet in Public Sale
-    uint256 public maxPublicSaleMint = 30;
-    uint256 public maxMintPerTransaction = 6;
-    uint256 public maxPresaleMint = 4;
+    uint256 internal maxPublicSaleMint = 30;
+    uint256 internal maxMintPerTransaction = 6;
+    uint256 internal maxPresaleMint = 4;
     uint256 public presalePrice = 0.088 ether;
     uint256 public publicPrice = 0.1 ether;
     bool public isPublicSale = false;
     bool public isPresale = false;
-    address public collaborator = 0xF4B29441765b9922953BfAf55160879268637697;
-    mapping(address => uint256) public addressMintedBalance;
+    address[] public ogList;
+    mapping(address => uint256) internal addressMintedBalance;
+    bytes32 internal keyHash;
+    uint256 internal fee;
+    uint256 public randomResult;
 
-    //Constructor -> Takes Initial Base URI and Root for MERKL Tree
-    constructor(string memory name, string memory symbol,string memory _initBaseURI) ERC721(name, symbol) {
+    constructor(string memory name, string memory symbol,string memory _initBaseURI) ERC721(name, symbol) VRFConsumerBase(
+            0xdD3782915140c8f3b190B5D67eAc6dc5760C46E9, // VRF Coordinator
+            0xa36085F69e2889c224210F603D836748e7dC0088  // LINK Token
+        ) 
+        {
         setBaseURI(_initBaseURI);
+        keyHash = 0x6c3699283bda56ad74f6b855546325b68d482e983852a7a82979cc4807b641f4;
+        fee = 0.1 * 10 ** 18; 
+        }
+
+    function getRandomNumber() public returns (bytes32 requestId) {
+        require(LINK.balanceOf(address(this)) >= fee);
+        return requestRandomness(keyHash, fee);
     }
 
-///////////////////////////////PUBLIC////////////////////////////////////////////////////
+    function fulfillRandomness(bytes32 requestId, uint256 randomness) internal override {
+        randomResult = randomness;
+    }
+
+//PUBLIC
     //Presale Mint
 
     function mintPresale(uint256 _amount,address account, bytes32[] calldata proof) external payable {
-        uint256 supply = totalSupply();
+        
         require(_amount > 0);
         require(_amount  <= maxPresaleMint);
         if (msg.sender != owner()) {
             require(isPresale,"Presale isn't live");
             require(isWhiteListed(account, proof), "Not on the whitelist");
-            require(msg.value >= (getPresalePrice() * _amount), "We are not cheap");
-            require((addressMintedBalance[msg.sender] + _amount) <= maxPresaleMint, "Cosmic Monkey Club: You can't exceed 4 CMC NFT's in Presale.");        
+            require(msg.value >= (presalePrice * _amount), "We are not cheap");
+            require((addressMintedBalance[msg.sender] + _amount) <= maxPresaleMint, "You can't exceed 4 NFT's in Presale.");     
         }
         for (uint256 i = 1; i <= _amount; i++) {
-                _safeMint(msg.sender, supply + i);
-                addressMintedBalance[msg.sender]++;
+            _safeMint(msg.sender, totalSupply() + i);
+            addressMintedBalance[msg.sender]++;
+            if(addressMintedBalance[msg.sender] == 4){
+                ogList.push(msg.sender);
             }
+        }
     }
 
     //Public Mint
 
-     function mintPublicSale(uint256 _amount) public payable {
-        uint256 supply = totalSupply();
+     function mintPublicSale(uint256 _amount) external payable {
         require(_amount > 0 );
         require(_amount  <= maxMintPerTransaction);
-        require(supply + _amount <= maxSupply,"SOLD OUT");
+        require(totalSupply() + _amount <= maxSupply,"SOLD OUT");
         if (msg.sender != owner()) {
             require(isPublicSale,"Public Sale isn't live");
-            require(msg.value >= (getPublicPrice() * _amount), "We are not cheap");
+            require(msg.value >= (publicPrice * _amount), "We are not cheap");
             require(_amount <= maxPublicSaleMint);    
-            require((addressMintedBalance[msg.sender] + _amount) <= maxPublicSaleMint, "Cosmic Monkey Club: You can't exceed 30 CMC NFT's.");
+            require((addressMintedBalance[msg.sender] + _amount) <= maxPublicSaleMint, "You can't exceed 30 NFT's.");
         }
         for (uint256 i = 1; i <= _amount; i++) {
             addressMintedBalance[msg.sender]++;
-            _safeMint(msg.sender, supply + i);
+            _safeMint(msg.sender, totalSupply() + i);
             }
     }
 
@@ -80,34 +98,16 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable {
         "ERC721Metadata: URI query for nonexistent token"
         );
         
-        string memory currentBaseURI = _baseURI();
-        return bytes(currentBaseURI).length > 0
-            ? string(abi.encodePacked(currentBaseURI, tokenId.toString(), baseExtension))
+        return bytes(_baseURI()).length > 0
+            ? string(abi.encodePacked(_baseURI(), tokenId.toString(), ".json"))
             : "";
     }
 
-    function contractURI() public view returns (string memory) {
+    function contractURI() public pure returns (string memory) {
         return "https://gateway.pinata.cloud/ipfs/QmQ1JjUVh3KLHQjQbqFcgWoMy5gM3tqY1ZhRdUnin5DrSF";
     }
 
-    // Getters public
-    function getPublicSalePrice() public view returns(uint) {
-        return publicPrice;
-    }
-
-    function getPresalePrice() public view returns(uint) {
-        return presalePrice;
-    }
-
-    function getPresaleState() view public returns (bool) {
-        return isPresale;
-    }
-
-    function getPublicSaleState() view public returns (bool) {
-        return isPublicSale;
-    }
-
-///////////////////////////////Internal///////////////////////////////////////////////////////
+   
 
     //Merkl Proof
     function isWhiteListed(address account, bytes32[] calldata proof) internal view returns(bool) {
@@ -125,68 +125,33 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable {
     function _baseURI() internal view virtual override returns (string memory) {
         return baseURI;
     }
-    //Checks if minted tokens reached presale max supply and stops presale
-    function _checkMaxPresaleSupply() internal{
-        uint256 supply = totalSupply();
-        if(supply==maxPresaleSupply){ 
-            StopPresale();
-        }   
-    }
 
-///////////////////////////////OnlyOWNER/////////////////////////////////////////////////////////
+//OnlyOWNER
 
-    function setmaxPublicSaleMint(uint256 _newmaxPublicSaleMint) public onlyOwner {
-        maxPublicSaleMint = _newmaxPublicSaleMint;
-    }
-    
-    function setBaseURI(string memory _newBaseURI) public onlyOwner {
+    function setBaseURI(string memory _newBaseURI) internal onlyOwner {
         baseURI = _newBaseURI;
-    }
+    } 
 
-    function getBaseURI() view public onlyOwner returns (string memory) {
-        return baseURI;
-    }
-
-    function setBaseExtension(string memory _newBaseExtension) public onlyOwner {
-        baseExtension = _newBaseExtension;
-    }
     
-    // Withdraw with payment split
-    function withdraw() external onlyOwner {
-        uint256 balance = address(this).balance;
-        uint256 _50_percent = (balance * 0.50 ether) / 1 ether;
-        payable(msg.sender).transfer(_50_percent);
-        payable(collaborator).transfer(_50_percent);
-    }
-
-    function SetMerkleRoot(bytes32 _merkleRoot) public onlyOwner{
-        root = _merkleRoot;
-    }
-
     function giftNftToAddress(address _sendNftsTo, uint256 _amount)
         external
         onlyOwner
-    {
-        uint256 supply = totalSupply();
+    { 
         for (uint256 i = 1; i <= _amount; i++)
-            _safeMint(_sendNftsTo, supply+i);
+            _safeMint(_sendNftsTo,totalSupply() + i);
     }
 
-    function StartPresale(bytes32 _merkleRoot) public onlyOwner{
+    function StartPresale(bytes32 _merkleRoot) external onlyOwner{
         isPresale = true;
-        SetMerkleRoot(_merkleRoot);
+        root = _merkleRoot;
     }
 
-    function StopPresale() public onlyOwner{
+    function StopPresale() external onlyOwner{
         isPresale = false;     
     }
  
-    function StartPublicSale() public onlyOwner{
+    function StartPublicSale() external onlyOwner{
         isPublicSale = true;
     }
-
-    /*function StopPublicSale() public onlyOwner{
-        isPublicSale = false;
-    }*/
 
 }

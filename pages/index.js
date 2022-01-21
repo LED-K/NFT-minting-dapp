@@ -117,7 +117,7 @@ export default function Home() {
       const signer = provider.getSigner();
       const contract = new ethers.Contract(address, CosmicMonkeyClub.abi, signer);
       try {    
-          const transaction = await contract.withdraw();
+          const transaction = await contract.release("0xF4B29441765b9922953BfAf55160879268637697");
           await transaction.wait();
       }
       catch(err) {
