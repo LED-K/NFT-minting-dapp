@@ -1,13 +1,11 @@
 const hre = require("hardhat");
 
 async function main() {
-
  
-  const CosmicMonkeyClub = await hre.ethers.getContractFactory("CosmicMonkeyClub");
-  const cosmicmonkeyclub = await CosmicMonkeyClub.deploy("CosmicMonkeyClub","CMC","ipfs://QmXCjKofupADLpHRRbsCkEV9FUSJQKgZA8XCVjzmuk51H4/");
-  await cosmicmonkeyclub.deployed();
-
-  console.log("Ubited Lions deployed to:", cosmicmonkeyclub.address);
+  const Contract = await hre.ethers.getContractFactory("CosmicMonkeyClub");
+  const contract = await Contract.deploy("Cosmic Monkey Club","CMC","ipfs://");
+  await contract.deployed();
+  console.log("Contract to:", contract.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

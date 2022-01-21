@@ -1,5 +1,6 @@
 require("@nomiclabs/hardhat-waffle");
 require('hardhat-contract-sizer');
+require("@nomiclabs/hardhat-etherscan");
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -38,6 +39,16 @@ module.exports = {
       accounts:['1d6b6c63470e6329487625d6ca054b4d8c6eda2ca3f38d42fea529a9ed678983'], 
       gas:2100000,
       gasPrice:8000000000
+    }
+  },
+  etherscan: {
+    apiKey: {
+      mainnet: "6EQMQJ99I311RHAYH86PV3W6QEJ1KZS2W8",
+      ropsten: "6EQMQJ99I311RHAYH86PV3W6QEJ1KZS2W8",
+      polygon: "ZV4JFZ95563H8DJ1KQE2ZF3XE834YJPJ2Y",
+      polygonMumbai: "ZV4JFZ95563H8DJ1KQE2ZF3XE834YJPJ2Y",
+
+
     }
   }
 };

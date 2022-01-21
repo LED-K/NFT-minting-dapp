@@ -11,6 +11,7 @@ import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
 
 contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase{
     using Strings for uint256;
+    using MerkleProof for bytes32[];
     string public baseURI;
     string public contractUrl = "";
     bytes32 private merkleRoot;
