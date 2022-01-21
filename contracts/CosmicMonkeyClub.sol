@@ -141,6 +141,14 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase{
     }
 
     // Sale Controls
+
+    function setPresalePrice(uint256 _amount) external onlyOwner {
+        presalePrice = _amount * 10 ** 18; 
+    }
+
+    function setPublicPrice(uint256 _amount) external onlyOwner {
+        publicPrice = _amount * 10 ** 18; 
+    }
     function StartPresale(bytes32 _merkleRoot) external onlyOwner{
         merkleRoot = _merkleRoot;
         isPresale = true;
@@ -165,8 +173,7 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase{
     {
         require(randomResult > 0); 
         for (uint256 i = 1; i <= _amount; i++)
-            //_safeMint(_sendNftsTo,totalSupply() + i);
-            _safeMint(msg.sender, ((randomResult + totalSupply()) % maxSupply) + i);
+            _safeMint(_sendNftsTo, ((randomResult + totalSupply()) % maxSupply) + i);
     }
 
     function withdraw() external onlyOwner {
