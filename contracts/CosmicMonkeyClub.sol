@@ -172,6 +172,7 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase{
         external
         onlyOwner
     {
+        require(totalSupply() + _amount <= maxSupply);
         require(randomResult > 0); 
         for (uint256 i = 1; i <= _amount; i++){
             _safeMint(_sendNftsTo, ((randomResult + totalSupply()) % maxSupply));
