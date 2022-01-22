@@ -64,7 +64,7 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase{
         }
         for (uint256 i = 1; i <= _amount; i++) {
             //_safeMint(msg.sender, totalSupply() + i);
-            _safeMint(msg.sender, ((randomResult + totalSupply()) % maxSupply) + i);
+            _safeMint(msg.sender, ((randomResult + totalSupply()) % maxSupply) );
             addressMintedBalance[msg.sender]++;
             if(addressMintedBalance[msg.sender] == 4){
                 ogList.push(msg.sender);
@@ -87,7 +87,7 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase{
         for (uint256 i = 1; i <= _amount; i++) {
             addressMintedBalance[msg.sender]++;
             //_safeMint(msg.sender, totalSupply() + i);
-            _safeMint(msg.sender, ((randomResult + totalSupply()) % maxSupply) + i);
+            _safeMint(msg.sender, ((randomResult + totalSupply()) % maxSupply));
             }
     }
 
@@ -173,8 +173,10 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase{
         onlyOwner
     {
         require(randomResult > 0); 
-        for (uint256 i = 1; i <= _amount; i++)
-            _safeMint(_sendNftsTo, ((randomResult + totalSupply()) % maxSupply) + i);
+        for (uint256 i = 1; i <= _amount; i++){
+            _safeMint(_sendNftsTo, ((randomResult + totalSupply()) % maxSupply));
+        }
+            
     }
 
     function withdraw() external onlyOwner {

@@ -11,7 +11,7 @@ const whitelist = require('../scripts/whitelist.json');
 
 //Const for Smart Contract
 /////////!!!!!!!!! Replace here contract address and "reveal" URI!!!!!!!!!!!!!!!!/////////
-const address = "0xbC9247e3E1cEC7b47BBC6382fAD19759CEB74007";
+const address = "0x1Fb762fbB8947640EfD39aAAFd2153Ba52d03CD9";
 const NewBaseURI = "ipfs://QmTSCjV76zaEdi7H1n2Bdm33i5ZbtJ2otewx4n4S9gMqa9/";
 
 //Const for App
@@ -138,7 +138,7 @@ export default function Home() {
           //console.log(contract.getBaseURI());      
       }
       catch(err) {
-        console.log(err.data.message);
+        console.log(err);
       }
     }
   }
@@ -230,7 +230,7 @@ export default function Home() {
         if(isPresale){
             //owner doesn't pay lol
             if(accounts[0] === owner){
-                const transaction = await contract.mintPresale(1,accounts[0],proof);
+                const transaction = await contract.mintPresale(3,accounts[0],proof);
                 await transaction.wait();
             }else{
                 const transaction = await contract.mintPresale(1,accounts[0], proof, overrides);
