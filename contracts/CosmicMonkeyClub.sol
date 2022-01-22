@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
 
-contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase{
+contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase {
     using Strings for uint256;
     using MerkleProof for bytes32[];
     string public baseURI;
@@ -34,7 +34,7 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase{
     ERC721(name, symbol) 
     VRFConsumerBase(0x8C7382F9D8f56b33781fE506E897a4F1e2d17255,0x326C977E6efc84E512bB9C30f76E30c160eD06FB) 
     {
-        setBaseURI(_initBaseURI);
+        baseURI = _initBaseURI;
         // Chainlink VRF keyhash + fee ( different per network )
         keyHash = 0x6e75b569a01ef56d18cab6a8e71e6600d6ce853834d4a5748b720d06f878b3a4;
         fee = 0.1 * 10 ** 18; 
@@ -52,7 +52,6 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase{
     
     //Presale Mint
     function mintPresale(uint256 _amount,address account, bytes32[] calldata proof) external payable {
-        
         require(_amount > 0);
         require(randomResult > 0);
         require(_amount  <= maxPresaleMint);
@@ -62,9 +61,12 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase{
             require(msg.value >= (presalePrice * _amount), "Amount to low");
             require((addressMintedBalance[msg.sender] + _amount) <= maxPresaleMint, "Max. 4 NFT's in Presale.");     
         }
+        uint256 tokenId = ((randomResult + totalSupply()) % maxSupply);
         for (uint256 i = 1; i <= _amount; i++) {
-            //_safeMint(msg.sender, totalSupply() + i);
-            _safeMint(msg.sender, ((randomResult + totalSupply()) % maxSupply) );
+            if (tokenId == 0){
+                tokenId++
+            }
+            _safeMint(msg.sender, tokenId);
             addressMintedBalance[msg.sender]++;
             if(addressMintedBalance[msg.sender] == 4){
                 ogList.push(msg.sender);
@@ -77,18 +79,19 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase{
         require(_amount > 0 );
         require(randomResult > 0);
         require(_amount  <= maxMintPerTransaction, "Exceeding max. mint amount per tx.");
-        require(totalSupply() + _amount <= maxSupply,"SOLD OUT");
-        if (msg.sender != owner()) {
-            require(isPublicSale,"Public Sale isn't live");
-            require(msg.value >= (publicPrice * _amount), "We are not cheap");
-            require(_amount <= maxPublicSaleMint);    
-            require((addressMintedBalance[msg.sender] + _amount) <= maxPublicSaleMint, "Max. 30 NFT's.");
-        }
+        require(totalSupply() + _amount <= maxSupply,"Amount exceeds max. supply");
+        require(isPublicSale,"Public Sale isn't live");
+        require(msg.value >= (publicPrice * _amount), "We are not cheap");
+        require(_amount <= maxPublicSaleMint);    
+        require((addressMintedBalance[msg.sender] + _amount) <= maxPublicSaleMint, "Max. 30 NFT's per wallet.");
+        uint256 tokenId = ((randomResult + totalSupply()) % maxSupply);
         for (uint256 i = 1; i <= _amount; i++) {
-            addressMintedBalance[msg.sender]++;
-            //_safeMint(msg.sender, totalSupply() + i);
-            _safeMint(msg.sender, ((randomResult + totalSupply()) % maxSupply));
+            if(tokenId == 0){
+                tokenId++;
             }
+            addressMintedBalance[msg.sender]++;
+            _safeMint(msg.sender, tokenId);
+        }
     }
 
     //Merkle Proof
@@ -103,7 +106,6 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase{
     function _verify(bytes32 leaf, bytes32[] memory proof) internal view returns(bool) {
         return MerkleProof.verify(proof, merkleRoot, leaf);
     }
-
 
     // URI's
      function tokenURI(uint256 tokenId)
@@ -129,10 +131,6 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase{
         return baseURI;
     }
 
-    function setBaseURI(string memory _newBaseURI) public onlyOwner {
-        baseURI = _newBaseURI;
-    }
-
     function contractURI() public view returns (string memory) {
         return contractUrl;
     }
@@ -150,34 +148,40 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase{
     function setPublicPrice(uint256 _amount) external onlyOwner {
         publicPrice = _amount; 
     }
+
     function StartPresale(bytes32 _merkleRoot) external onlyOwner{
         merkleRoot = _merkleRoot;
         isPresale = true;
     }
 
     function StopPresale() external onlyOwner{
+        require(isPublicSale == false);
         isPresale = false;     
     }
  
     function StartPublicSale() external onlyOwner{
+        require(isPresale == false);
         isPublicSale = true;
-    } 
-
-    function setRevealed() external onlyOwner {
-        isRevealed = true;
     }
 
+    function reveal(string memory _newBaseURI) external onlyOwner {
+        require(isRevealed == false);
+        baseURI = _newBaseURI;
+        isRevealed = true;
+    }
     // Gifting
     function giftNftToAddress(address _sendNftsTo, uint256 _amount)
         external
         onlyOwner
     {
-        require(totalSupply() + _amount <= maxSupply);
-        require(randomResult > 0); 
+        require(randomResult > 0, "random number required");
+        require(totalSupply() + _amount <= maxSupply,"Amount exceeds max. supply");
+        uint256 tokenId = ((randomResult + totalSupply()) % maxSupply);
         for (uint256 i = 1; i <= _amount; i++){
-            _safeMint(_sendNftsTo, ((randomResult + totalSupply()) % maxSupply));
+            if(tokenId == 0){
+                tokenId++;            }
+            _safeMint(_sendNftsTo,tokenId);
         }
-            
     }
 
     function withdraw() external onlyOwner {
