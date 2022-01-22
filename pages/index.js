@@ -11,7 +11,7 @@ const whitelist = require('../scripts/whitelist.json');
 
 //Const for Smart Contract
 /////////!!!!!!!!! Replace here contract address and "reveal" URI!!!!!!!!!!!!!!!!/////////
-const address = "0x9F7f55710B054a74D58535c3C8c9E4D7fe54a46c";
+const address = "0xbC9247e3E1cEC7b47BBC6382fAD19759CEB74007";
 const NewBaseURI = "ipfs://QmTSCjV76zaEdi7H1n2Bdm33i5ZbtJ2otewx4n4S9gMqa9/";
 
 //Const for App
@@ -71,14 +71,14 @@ export default function Home() {
     if(typeof window.ethereum !== 'undefined') {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const contract = new ethers.Contract(address, CosmicMonkeyClub.abi, provider);
-      const isPresale = await contract.getPresaleState();
-      const isPublicSale = await contract.getPublicSaleState();
+      const isPresale = await contract.isPresale();
+      const isPublicSale = await contract.isPublicSale();
       try {
         if(isPresale){
-        const data = await contract.getPresalePrice();
+        const data = await contract.presalePrice();
         setPrice(data);
         } else if(isPublicSale) {
-            const data = await contract.getPublicSalePrice();
+            const data = await contract.publicPrice();
         setPrice(data);
         }   
       }
@@ -95,10 +95,10 @@ export default function Home() {
       const contract = new ethers.Contract(address, CosmicMonkeyClub.abi, provider);
       try {
         let totalSupply = await contract.totalSupply();
-        let pricePresale = await contract.getPresalePrice();
-        let pricePublicSale = await contract.getPublicSalePrice();
-        let isPresale = await contract.getPresaleState();
-        let isPublicSale = await contract.getPublicSaleState();
+        let pricePresale = await contract.presalePrice();
+        let pricePublicSale = await contract.publicPrice();
+        let isPresale = await contract.isPresale();
+        let isPublicSale = await contract.isPublicSale();
         const object = {"PricePresale": String(pricePresale), "PricePublicSale" : String(pricePublicSale), "totalSupply": String(totalSupply),"Account" : String(accounts[0]), "isPresale" : isPresale, "isPublicSale" : isPublicSale}
 
         setData(object);
@@ -117,7 +117,7 @@ export default function Home() {
       const signer = provider.getSigner();
       const contract = new ethers.Contract(address, CosmicMonkeyClub.abi, signer);
       try {    
-          const transaction = await contract.release("0xF4B29441765b9922953BfAf55160879268637697");
+          const transaction = await contract.withdraw();
           await transaction.wait();
       }
       catch(err) {
@@ -206,8 +206,8 @@ export default function Home() {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
       const contract = new ethers.Contract(address, CosmicMonkeyClub.abi, signer);
-      const isPresale = await contract.getPresaleState();
-      const isPublicSale = await contract.getPublicSaleState();
+      const isPresale = await contract.isPresale();
+      const isPublicSale = await contract.isPublicSale();
       //Construct array of whitelisted addresses from whitelist.json file
       let tab = [];
       whitelist.map(token => {
