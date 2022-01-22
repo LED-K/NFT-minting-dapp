@@ -1,6 +1,7 @@
 require("@nomiclabs/hardhat-waffle");
 require('hardhat-contract-sizer');
 require("@nomiclabs/hardhat-etherscan");
+require("dotenv").config();
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -36,7 +37,7 @@ module.exports = {
     },
     matic:{
       url:'https://rpc-mumbai.maticvigil.com/',
-      accounts:['1d6b6c63470e6329487625d6ca054b4d8c6eda2ca3f38d42fea529a9ed678983'], 
+      accounts:[process.env.PRIVATE_KEY], 
       gas:2100000,
       gasPrice:8000000000
     }
