@@ -33,7 +33,7 @@ module.exports = {
   networks:{
     ropsten:{
       url:'https://ropsten.infura.io/v3/81624675d02a4e0691fc26083e7615e1',
-      accounts:['0x1d6b6c63470e6329487625d6ca054b4d8c6eda2ca3f38d42fea529a9ed678983']
+      accounts:[process.env.PRIVATE_KEY],
     },
     matic:{
       url:'https://rpc-mumbai.maticvigil.com/',

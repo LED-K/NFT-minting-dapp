@@ -1,0 +1,1 @@
+npx hardhat verify --network matic 0x83F58bF3C06B49f16A5cF8383B542B9BA3CF7C69 --constructor-args data/arguments.js --show-stack-traces

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Made with ❤ by Rens L & LEDK
+// Made with ❤ by Rens L
 // Email: info@renslaros.com
 // Twitter: @humanrens 
 pragma solidity ^0.8.7;
@@ -24,6 +24,7 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase {
     uint256 internal maxMintPerTransaction = 6;
     uint256 internal maxPresaleMint = 4;
     uint256 internal fee;
+    uint256 internal tokenId;
     uint256 public randomResult;
     bool public isPublicSale = false;
     bool public isPresale = false;
@@ -61,10 +62,10 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase {
             require(msg.value >= (presalePrice * _amount), "Amount to low");
             require((addressMintedBalance[msg.sender] + _amount) <= maxPresaleMint, "Max. 4 NFT's in Presale.");     
         }
-        uint256 tokenId = ((randomResult + totalSupply()) % maxSupply);
         for (uint256 i = 1; i <= _amount; i++) {
-            if (tokenId == 0){
-                tokenId++
+            tokenId = ((randomResult + totalSupply()) % maxSupply);
+            if(tokenId == 0){
+                tokenId++;
             }
             _safeMint(msg.sender, tokenId);
             addressMintedBalance[msg.sender]++;
@@ -84,8 +85,8 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase {
         require(msg.value >= (publicPrice * _amount), "We are not cheap");
         require(_amount <= maxPublicSaleMint);    
         require((addressMintedBalance[msg.sender] + _amount) <= maxPublicSaleMint, "Max. 30 NFT's per wallet.");
-        uint256 tokenId = ((randomResult + totalSupply()) % maxSupply);
         for (uint256 i = 1; i <= _amount; i++) {
+            tokenId = ((randomResult + totalSupply()) % maxSupply);
             if(tokenId == 0){
                 tokenId++;
             }
@@ -176,8 +177,8 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase {
     {
         require(randomResult > 0, "random number required");
         require(totalSupply() + _amount <= maxSupply,"Amount exceeds max. supply");
-        uint256 tokenId = ((randomResult + totalSupply()) % maxSupply);
         for (uint256 i = 1; i <= _amount; i++){
+            tokenId = ((randomResult + totalSupply()) % maxSupply);
             if(tokenId == 0){
                 tokenId++;            }
             _safeMint(_sendNftsTo,tokenId);
