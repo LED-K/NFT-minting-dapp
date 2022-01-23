@@ -164,7 +164,7 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase {
         isPublicSale = true;
     }
 
-    function stopPublicSale() external onlyOWner {
+    function stopPublicSale() external onlyOwner {
         isPublicSale = false;
     }
 

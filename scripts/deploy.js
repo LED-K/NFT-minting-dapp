@@ -1,9 +1,10 @@
 const hre = require("hardhat");
+require("dotenv").config();
 
 async function main() {
  
   const Contract = await hre.ethers.getContractFactory("CosmicMonkeyClub");
-  const contract = await Contract.deploy("Cosmic Monkey Club","CMC","https://bafybeifitw5hc2uuysrogjj6fl6ptwftmrrrxwueahzq47wwhusyuaiywy.ipfs.infura-ipfs.io/");
+  const contract = await Contract.deploy(process.env.CONTRACT_NAME,process.env.CONTRACT_SYMBOL,process.env.CONTRACT_BASE_URI);
   await contract.deployed();
   console.log("Contract to:", contract.address);
 }
