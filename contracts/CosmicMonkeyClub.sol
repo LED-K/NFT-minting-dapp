@@ -64,7 +64,7 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase {
         for (uint256 i = 1; i <= _amount; i++) {
             tokenId = ((randomResult + totalSupply()) % maxSupply);
             if(tokenId == 0){
-                tokenId = 10000;
+                tokenId = maxSupply;
             }
             _safeMint(msg.sender, tokenId);
             addressMintedBalance[msg.sender]++;
@@ -87,7 +87,7 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase {
         for (uint256 i = 1; i <= _amount; i++) {
             tokenId = ((randomResult + totalSupply()) % maxSupply);
             if(tokenId == 0){
-                tokenId = 10000;
+                tokenId = maxSupply;
             }
             addressMintedBalance[msg.sender]++;
             _safeMint(msg.sender, tokenId);
@@ -184,7 +184,7 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase {
         for (uint256 i = 1; i <= _amount; i++){
             tokenId = ((randomResult + totalSupply()) % maxSupply);
             if(tokenId == 0){
-                tokenId == 10000;            
+                tokenId == maxSupply;            
             }
             _safeMint(_sendNftsTo,tokenId);
         }
