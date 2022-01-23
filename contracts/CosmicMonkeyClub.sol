@@ -11,7 +11,6 @@ import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
 
 contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase {
     using Strings for uint256;
-    using MerkleProof for bytes32[];
     string public baseURI;
     string public contractUrl = "";
     bytes32 private merkleRoot;
@@ -109,7 +108,7 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase {
     }
 
     // URI's
-     function tokenURI(uint256 tokenId)
+     function tokenURI(uint256 _tokenId)
         public
         view
         virtual
@@ -117,12 +116,12 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase {
         returns (string memory)
     {
         require(
-        _exists(tokenId),
+        _exists(_tokenId),
         "ERC721Metadata: URI query for nonexistent token"
         );
         if (isRevealed) {
             return bytes(_baseURI()).length > 0
-                ? string(abi.encodePacked(_baseURI(), tokenId.toString(), ".json"))
+                ? string(abi.encodePacked(_baseURI(), _tokenId.toString(), ".json"))
                 : "";
         }
         return _baseURI();

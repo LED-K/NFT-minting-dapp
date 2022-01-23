@@ -34,20 +34,22 @@ module.exports = {
     ropsten:{
       url:'https://ropsten.infura.io/v3/81624675d02a4e0691fc26083e7615e1',
       accounts:[process.env.PRIVATE_KEY],
+      gas:3100000,
+      gasPrice:9000000000
     },
-    matic:{
-      url:'https://rpc-mumbai.maticvigil.com/',
-      accounts:[process.env.PRIVATE_KEY], 
-      gas:2100000,
-      gasPrice:8000000000
+    mumbai:{
+      url:'https://matic-mumbai.chainstacklabs.com',
+      accounts: [process.env.PRIVATE_KEY], 
+      gas:3100000,
+      gasPrice:9000000000
     }
   },
   etherscan: {
     apiKey: {
-      mainnet: "6EQMQJ99I311RHAYH86PV3W6QEJ1KZS2W8",
-      ropsten: "6EQMQJ99I311RHAYH86PV3W6QEJ1KZS2W8",
-      polygon: "ZV4JFZ95563H8DJ1KQE2ZF3XE834YJPJ2Y",
-      polygonMumbai: "ZV4JFZ95563H8DJ1KQE2ZF3XE834YJPJ2Y",
+      mainnet: process.env.ETHERSCAN_API_KEY,
+      ropsten: process.env.ETHERSCAN_API_KEY,
+      polygon: process.env.POLYSCAN_API_KEY,
+      polygonMumbai: process.env.POLYSCAN_API_KEY,
 
 
     }
