@@ -64,7 +64,7 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase {
         for (uint256 i = 1; i <= _amount; i++) {
             tokenId = ((randomResult + totalSupply()) % maxSupply);
             if(tokenId == 0){
-                tokenId++;
+                tokenId = 10000;
             }
             _safeMint(msg.sender, tokenId);
             addressMintedBalance[msg.sender]++;
@@ -87,7 +87,7 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase {
         for (uint256 i = 1; i <= _amount; i++) {
             tokenId = ((randomResult + totalSupply()) % maxSupply);
             if(tokenId == 0){
-                tokenId++;
+                tokenId = 10000;
             }
             addressMintedBalance[msg.sender]++;
             _safeMint(msg.sender, tokenId);
@@ -164,6 +164,10 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase {
         isPublicSale = true;
     }
 
+    function stopPublicSale() external onlyOWner {
+        isPublicSale = false;
+    }
+
     function reveal(string memory _newBaseURI) external onlyOwner {
         require(isRevealed == false);
         baseURI = _newBaseURI;
@@ -176,10 +180,12 @@ contract CosmicMonkeyClub is ERC721Enumerable, Ownable, VRFConsumerBase {
     {
         require(randomResult > 0, "random number required");
         require(totalSupply() + _amount <= maxSupply,"Amount exceeds max. supply");
+        require(_amount <= 100,"Limit is 100 per transaction");
         for (uint256 i = 1; i <= _amount; i++){
             tokenId = ((randomResult + totalSupply()) % maxSupply);
             if(tokenId == 0){
-                tokenId++;            }
+                tokenId == 10000;            
+            }
             _safeMint(_sendNftsTo,tokenId);
         }
     }
