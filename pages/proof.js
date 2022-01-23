@@ -147,10 +147,7 @@ export default function Home() {
 
   async function startPresale(){
     if(typeof window.ethereum !== 'undefined') {
-      let tab = [];
-        whitelist.map(token => {
-        tab.push(token.address);
-      })
+
       try{
         const leaves = whitelist.map(address => keccak256(address));
         const tree = new MerkleTree(leaves, keccak256, { sort: true });
@@ -209,10 +206,7 @@ export default function Home() {
       const isPresale = await contract.isPresale();
       const isPublicSale = await contract.isPublicSale();
       //Construct array of whitelisted addresses from whitelist.json file
-      let tab = [];
-      whitelist.map(token => {
-        tab.push(token)
-      })
+     
 
       //Merkl Tree construction before sending the proof to the smart contract
       const leaves = whitelist.map(v => keccak256(v));
