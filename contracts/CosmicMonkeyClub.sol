@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Made with ❤ by Rens L
-// Email: info@renslaros.com
-// Twitter: @humanrens 
+// Made with ❤ by Khaled
 pragma solidity ^0.8.7;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
